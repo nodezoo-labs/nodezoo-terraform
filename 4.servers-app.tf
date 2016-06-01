@@ -104,7 +104,7 @@ resource "aws_instance" "npm" {
   # build and run docker
   provisioner "remote-exec" {
     inline = [
-      "docker build -t nodezoo-npm /tmp/app.",
+      "docker build -t nodezoo-npm /tmp/app/.",
       "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}' nodezoo-npm"
     ]
     connection {
