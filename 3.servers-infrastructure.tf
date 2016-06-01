@@ -1,3 +1,4 @@
+/*
 resource "aws_instance" "elastic" {
   instance_type = "t2.micro"
 
@@ -40,7 +41,11 @@ resource "aws_instance" "elastic" {
     Name = "nodezoo-elastic"
  }
 }
+*/
 
+/*
+Define Redis instance
+*/
 resource "aws_instance" "redis" {
   instance_type = "t2.micro"
 
@@ -51,14 +56,11 @@ resource "aws_instance" "redis" {
   key_name = "${aws_key_pair.deployer.key_name}"
 
   # Our Security group to allow HTTP and SSH access
-  security_groups = ["${aws_security_group.default.name}"]
+  security_groups = ["${aws_security_group.nat.name}"]
 
   provisioner "remote-exec" {
     inline = [
       "sudo apt-get update -y",
-//      "sudo apt-get install lxc wget bsdtar curl",
-//      "sudo apt-get install linux-image-extra-$(uname -r)",
-//      "sudo modprobe aufs",
       "curl -sSL https://get.docker.com/ | sudo sh",
       "sudo usermod -aG docker ubuntu"
     ]
@@ -84,6 +86,9 @@ resource "aws_instance" "redis" {
  }
 }
 
+/*
+Define Mesh Base instance
+*/
 resource "aws_instance" "base" {
   instance_type = "t2.micro"
 
@@ -95,19 +100,12 @@ resource "aws_instance" "base" {
 
   # Our Security group to allow HTTP and SSH access
   security_groups = [
-    "${aws_security_group.default.name}"]
+    "${aws_security_group.nat.name}"]
 
-  provisioner "file" {
-    source = "services/nodezoo-base/"
-    destination = "/tmp"
-    connection {
-      user = "ubuntu"
-      private_key = "${file("ssh/nodezoo")}"
-    }
-  }
-
+  # prepare app folder and install required packages
   provisioner "remote-exec" {
     inline = [
+      "mkdir /tmp/app",
       "sudo apt-get update -y",
       "curl -sSL https://get.docker.com/ | sudo sh",
       "sudo usermod -aG docker ubuntu"
@@ -118,10 +116,21 @@ resource "aws_instance" "base" {
     }
   }
 
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-base/"
+    destination = "/tmp/app"
+    connection {
+      user = "ubuntu"
+      private_key = "${file("ssh/nodezoo")}"
+    }
+  }
+
+  # build and run docker
   provisioner "remote-exec" {
     inline = [
-      "docker build -t nodezoo-base /tmp/.",
-      "docker run  --restart=on-failure:20 nodezoo-base"
+      "docker build -t nodezoo-base /tmp/app/.",
+      "docker run -d --restart=on-failure:20 nodezoo-base"
     ]
     connection {
       user = "ubuntu"

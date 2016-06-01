@@ -58,6 +58,11 @@ resource "aws_instance" "github" {
  }
 }
 */
+
+/*
+Define NPM app instance
+*/
+
 resource "aws_instance" "npm" {
   instance_type = "t2.micro"
 
@@ -69,23 +74,14 @@ resource "aws_instance" "npm" {
 
   # Our Security group to allow HTTP and SSH access
   security_groups = [
-    "${aws_security_group.default.name}"]
+    "${aws_security_group.nat.name}"]
 
-  provisioner "file" {
-    source = "services/nodezoo-npm/"
-    destination = "/tmp"
-    connection {
-      user = "ubuntu"
-      private_key = "${file("ssh/nodezoo")}"
-    }
-  }
 
+  # prepare app folder and install required packages
   provisioner "remote-exec" {
     inline = [
+      "mkdir /tmp/app",
       "sudo apt-get update -y",
-      //      "sudo apt-get install lxc wget bsdtar curl",
-      //      "sudo apt-get install linux-image-extra-$(uname -r)",
-      //      "sudo modprobe aufs",
       "curl -sSL https://get.docker.com/ | sudo sh",
       "sudo usermod -aG docker ubuntu"
     ]
@@ -95,10 +91,21 @@ resource "aws_instance" "npm" {
     }
   }
 
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-npm/"
+    destination = "/tmp/app"
+    connection {
+      user = "ubuntu"
+      private_key = "${file("ssh/nodezoo")}"
+    }
+  }
+
+  # build and run docker
   provisioner "remote-exec" {
     inline = [
-      "docker build -t nodezoo-npm /tmp/.",
-      "docker run  --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.public_ip}' -e BASE_HOST='${aws_instance.base.public_ip}' nodezoo-npm"
+      "docker build -t nodezoo-npm /tmp/app.",
+      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}' nodezoo-npm"
     ]
     connection {
       user = "ubuntu"
