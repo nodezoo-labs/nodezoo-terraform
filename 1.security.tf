@@ -43,7 +43,7 @@ resource "aws_security_group" "nat" {
   name = "instance_sg_nat_nodezoo"
   description = "Used by nodezoo nat instances"
 
-  # SSH access from anywhere - a hack for now - TODO set-up a VPC
+  # SSH access from anywhere
   ingress {
     from_port = 22
     to_port = 22
@@ -51,7 +51,7 @@ resource "aws_security_group" "nat" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Access from anywhere
+  # Access from anywhere - a hack for now - TODO set-up a VPC
   ingress {
     from_port = 0
     to_port = 0
