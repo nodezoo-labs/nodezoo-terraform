@@ -59,12 +59,6 @@ resource "aws_instance" "github" {
 }
 */
 resource "aws_instance" "npm" {
-  depends_on = [
-    //    "aws_key_pair.deployer",
-    //    "aws_instance.elastic",
-    //    "aws_instance.redis"
-  ]
-
   instance_type = "t2.micro"
 
   # Lookup the correct AMI based on the region
