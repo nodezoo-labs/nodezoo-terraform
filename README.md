@@ -109,6 +109,32 @@ and respond yes when prompted.
 
 This will destroy all resources create by this plan.
 
+# Terraform plan explained
+
+The main instances created by this plan are:
+
+  * VPC - Virtual Private Cloud
+  * Networking
+    * Private Subnet
+  * Security
+    * Default security group - the security group used by default in the VPC
+    * NAT security group - the security group used by microservice instances
+    * ELB security group - the security group used by ELB
+  * Load balancer
+    * ELB instance - ELB in front of WEB app
+  * Infrastructure instances
+    * Elastic search instance
+    * Redis instance
+    * Mesh base instance
+  * Microservice instances
+    * WEB app
+    * NPM microservice 
+    * GitHub microservice
+    * Travis microservice
+    * Updater microservice
+    * Dequeue microservice
+    * Info microservice
+    
 
 ## Contributing
 The [NodeZoo org][] encourages __open__ and __safe__ participation.
