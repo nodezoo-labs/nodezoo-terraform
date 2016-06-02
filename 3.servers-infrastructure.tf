@@ -72,7 +72,9 @@ resource "aws_instance" "redis" {
 
   provisioner "remote-exec" {
     inline = [
-      "docker run --name redis -p 6379 -d redis redis-server --appendonly yes"
+      "docker run --name redis -p 6379 -d redis redis-server --appendonly yes",
+      # next line is just just for debugging purposes
+      "echo docker run --name redis -p 6379 -d redis redis-server --appendonly yes > docker_cmd.sh",
     ]
     connection {
       user = "ubuntu"
@@ -130,7 +132,9 @@ resource "aws_instance" "base" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-base /tmp/app/.",
-      "docker run -d --restart=on-failure:20 nodezoo-base"
+      "docker run -d --net=host -e BASE_HOST='${aws_instance.base.private_dns}' --restart=on-failure:20 nodezoo-base",
+      # next line is just just for debugging purposes
+      "echo docker run -d --net=host -e BASE_HOST='${aws_instance.base.private_dns}' --restart=on-failure:20 nodezoo-base > docker_cmd.sh"
     ]
     connection {
       user = "ubuntu"

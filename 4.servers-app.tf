@@ -105,7 +105,9 @@ resource "aws_instance" "npm" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-npm /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}' nodezoo-npm"
+      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_dns}' -e NPM_HOST='${aws_instance.npm.private_dns}' -e BASE_HOST='${aws_instance.base.private_dns}:39999' nodezoo-npm",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_dns}' -e NPM_HOST='${aws_instance.npm.private_dns}:39999' -e BASE_HOST='${aws_instance.base.private_dns}:39999' nodezoo-npm > docker_cmd.sh"
     ]
     connection {
       user = "ubuntu"
