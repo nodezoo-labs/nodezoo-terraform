@@ -1,7 +1,7 @@
 /*
 resource "aws_instance" "web" {
 
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_type}"
 
   # Lookup the correct AMI based on the region
   # we specified
@@ -64,7 +64,7 @@ Define NPM app instance
 */
 
 resource "aws_instance" "npm" {
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_type}"
 
   # Lookup the correct AMI based on the region
   # we specified

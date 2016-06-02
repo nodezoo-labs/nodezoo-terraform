@@ -64,15 +64,16 @@ The project contains various files and their role is explained bellow:
 The structure of the file is:
 
 ```
-|-- ssh                    # folder where ssh keys are placed
-|-- 1.security.tf          # configuration for security resources including key pairs, security groups, a.s.o
-|-- 2.network.tf           # configuration for network resources (load balancer)
+|-- ssh                    # Folder where ssh keys are placed
+|-- 1.security.tf          # Configuration for security resources including key pairs, security groups, a.s.o
+|-- 2.network.tf           # Configuration for network resources (load balancer)
 |-- 3.servers-infrastructure.tf
-                           # configuration for infrastructure servers (redis, elasticsearch and mesh base)
-|-- 4.servers-app.tf       # configuration for instances with microservices running.
-|-- keypairs.tf            # definition for keypairs used for SSH access on remote instances
-|-- outputs.tf             # configuration for outputs variables to be displayed after a ```terraform apply``` command is successfully executed.
-|-- variables.tf           # variables used by Terraform project. Here you can change the zone of deployment and also the instance types to be created by this project.
+                           # Configuration for infrastructure servers (redis, elasticsearch and mesh base)
+|-- 4.servers-app.tf       # Configuration for instances with microservices running.
+|-- keypairs.tf            # Definition for keypairs used for SSH access on remote instances
+|-- outputs.tf             # Configuration for outputs variables to be displayed after a ```terraform apply``` command is successfully executed.
+|-- variables.tf           # Variables used by Terraform project. Here you can change the zone of deployment and also the instance types to be created by this project. 
+                           # Note that the size of the instances to be used are keeped at minimum. You can choose to use other instance types or AWS zone.
 ```
 
 

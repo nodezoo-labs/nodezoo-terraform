@@ -1,6 +1,6 @@
 /*
 resource "aws_instance" "elastic" {
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_type}"
 
   # Lookup the correct AMI based on the region
   # we specified
@@ -47,7 +47,7 @@ resource "aws_instance" "elastic" {
 Define Redis instance
 */
 resource "aws_instance" "redis" {
-  instance_type = "t2.micro"
+  instance_type = "${var.instance_type}"
 
   # Lookup the correct AMI based on the region
   # we specified
@@ -92,7 +92,7 @@ resource "aws_instance" "redis" {
 Define Mesh Base instance
 */
 resource "aws_instance" "base" {
-  instance_type = "t2.micro"
+  instance_type = "${var.base_instance_type}"
 
   # Lookup the correct AMI based on the region
   # we specified
