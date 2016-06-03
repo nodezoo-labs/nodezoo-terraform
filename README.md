@@ -65,16 +65,18 @@ The structure of the file is:
 
 ```
 |-- ssh                    # Folder where ssh keys are placed
-|-- 1.security.tf          # Configuration for security resources including key pairs, security groups, a.s.o
+|-- 1.security.tf          # Configuration for security resources including 
+                           # key pairs, security groups, a.s.o
 |-- 2.network.tf           # Configuration for network resources (load balancer)
 |-- 3.servers-infrastructure.tf
-                           # Configuration for infrastructure servers (redis, elasticsearch and mesh base)
+                           # Configuration for infrastructure servers
+                           # like redis, elasticsearch and mesh base
 |-- 4.servers-app.tf       # Configuration for instances with microservices running.
 |-- keypairs.tf            # Definition for keypairs used for SSH access on remote instances
 |-- outputs.tf             # Configuration for outputs variables to be displayed after 
                            # a ```terraform apply``` command is successfully executed.
-|-- variables.tf           # Variables used by Terraform project. Here you can change the zone of deployment and 
-                           # also the instance types to be created by this project. 
+|-- variables.tf           # Variables used by Terraform project. Here you can change the zone of 
+                           # deployment and also the instance types to be created by this project. 
                            # Note that the size of the instances to be used are keeped at minimum. 
                            # You can choose to use other instance types or AWS zone.
 ```
