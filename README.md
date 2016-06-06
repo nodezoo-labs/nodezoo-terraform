@@ -67,6 +67,8 @@ Run:
 make setup
 ```
 
+### Project structure
+
 The project contains various files and their role is explained bellow:
 
 The structure of the file is:
