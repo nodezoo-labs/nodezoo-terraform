@@ -11,7 +11,7 @@ resource "aws_instance" "elastic" {
   subnet_id = "${aws_subnet.nodezoo.id}"
 
   # Our Security group
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -53,7 +53,7 @@ resource "aws_instance" "redis" {
   private_ip = "${var.redis_private_ip}"
 
   # Our Security group
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -98,7 +98,7 @@ resource "aws_instance" "base" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"

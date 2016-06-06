@@ -16,9 +16,9 @@ resource "aws_vpc" "nodezoo" {
 
 # Our default security group to access
 # the instances over SSH
-resource "aws_security_group" "nat" {
+resource "aws_security_group" "private" {
   name = "instance_sg_nat_nodezoo"
-  description = "NAT security group for Nodezoo"
+  description = "Private security group for Nodezoo"
   vpc_id = "${aws_vpc.nodezoo.id}"
 
   # SSH access from anywhere
@@ -46,7 +46,7 @@ resource "aws_security_group" "nat" {
   }
 
   tags {
-    Name = "NAT security group for Nodezoo"
+    Name = "Private security group for Nodezoo"
   }
 }
 

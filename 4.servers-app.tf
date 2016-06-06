@@ -12,7 +12,7 @@ resource "aws_instance" "npm" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -39,8 +39,6 @@ resource "aws_instance" "npm" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-npm /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm",
     ]
   }
@@ -65,7 +63,7 @@ resource "aws_instance" "github" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -92,8 +90,6 @@ resource "aws_instance" "github" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-github /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
     ]
   }
@@ -118,7 +114,7 @@ resource "aws_instance" "travis" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -145,8 +141,6 @@ resource "aws_instance" "travis" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-travis /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis",
     ]
   }
@@ -171,7 +165,7 @@ resource "aws_instance" "updater" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -198,8 +192,6 @@ resource "aws_instance" "updater" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-updater /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater",
     ]
   }
@@ -224,7 +216,7 @@ resource "aws_instance" "dequeue" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -251,8 +243,6 @@ resource "aws_instance" "dequeue" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-dequeue /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e DEQUEUE_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue",
     ]
   }
@@ -277,7 +267,7 @@ resource "aws_instance" "info" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -304,8 +294,6 @@ resource "aws_instance" "info" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-info /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info",
     ]
   }
@@ -330,7 +318,7 @@ resource "aws_instance" "search" {
 
   # Our Security group to allow HTTP and SSH access
   # HINT: Because we are using also subnet_id the id of security group should be used instead of name
-  security_groups = ["${aws_security_group.nat.id}"]
+  security_groups = ["${aws_security_group.private.id}"]
 
   connection {
     user = "ubuntu"
@@ -357,8 +345,6 @@ resource "aws_instance" "search" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-search /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
     ]
   }
@@ -410,8 +396,6 @@ resource "aws_instance" "web" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-web /tmp/app/.",
-      # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web > docker_cmd.sh",
       "docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
     ]
   }
