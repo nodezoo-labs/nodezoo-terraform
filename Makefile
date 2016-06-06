@@ -13,4 +13,4 @@ $(SERVICES):
 clean:
 	rm -rf services
 
-dev-setup: $(SERVICES)
+setup: $(SERVICES)
