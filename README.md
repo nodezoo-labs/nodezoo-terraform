@@ -121,8 +121,7 @@ The main instances created by this plan are:
   * VPC - Virtual Private Cloud
   * Security
     * Default security group - the security group used by default in the VPC
-    * NAT security group - the security group used by microservice instances
-    * ELB security group - the security group used by ELB
+    * Private security group - the security group used by microservice instances
   * Network
    * An Internet Gateway
    * A sub-network
