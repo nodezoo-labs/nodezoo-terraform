@@ -24,17 +24,17 @@ link below for details on obtaining and running the complete system.
 
 # Prerequisites
 
-## Install Terraform
+### Install Terraform
 
 To install Terraform please check documentation [site](https://www.terraform.io/intro/getting-started/install.html).
 
-## Create AWS account and generate access keys
+### Create AWS account and generate access keys
 
 To run this project you need to set-up and [AWS account](http://console.aws.amazon.com) and generate then security access keys from [IAM](https://console.aws.amazon.com/iam/home).
 
 Please follow documentation on site for more details.
 
-## Set the access keys into project.
+### Set the access keys into project.
 
 To use the access key into project you can:
  * enter their values each time you run a Terraform command and when you are prompted or
@@ -47,7 +47,7 @@ secret_key = "....your secret key....."
  
 Be careful not to share these keys by committing the file.
  
-## Generate ssh access keys
+### Generate ssh access keys
 
 In order to run command remotly and generate/install packages on remote instances you need to generate ssh keys. You can do that by running:
 
