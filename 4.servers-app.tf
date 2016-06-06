@@ -358,8 +358,8 @@ resource "aws_instance" "search" {
     inline = [
       "docker build -t nodezoo-search /tmp/app/.",
       # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search > docker_cmd.sh",
-      "docker run -d --restart=on-failure:20 -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
+      "echo docker run -d --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
     ]
   }
 

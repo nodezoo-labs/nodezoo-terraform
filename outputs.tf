@@ -41,5 +41,5 @@ output "dequeue-public-ip" {
 }
 
 output "web-public-ip" {
-  value = "${aws_instance.web.public_ip}"
+  value = "${aws_eip.web.public_ip}"
 }

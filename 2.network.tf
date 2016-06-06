@@ -30,7 +30,7 @@ resource "aws_route_table_association" "public" {
   route_table_id = "${aws_route_table.public.id}"
 }
 
-resource "aws_eip" "lb" {
+resource "aws_eip" "web" {
   instance = "${aws_instance.web.id}"
   vpc      = true
 }
