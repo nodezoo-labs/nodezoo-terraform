@@ -125,8 +125,11 @@ The main instances created by this plan are:
     * Default security group - the security group used by default in the VPC
     * NAT security group - the security group used by microservice instances
     * ELB security group - the security group used by ELB
-  * Load balancer
-    * ELB instance - ELB in front of WEB app
+  * Network
+   * An Internet Gateway
+   * A sub-network
+   * A route table
+   * An Elastic IP for the WEB instance. This allows setting the fixed public IP for WEB instance.
   * Infrastructure instances
     * Elastic search instance
     * Redis instance
