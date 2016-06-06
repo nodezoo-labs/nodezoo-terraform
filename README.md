@@ -119,8 +119,6 @@ This will destroy all resources create by this plan.
 The main instances created by this plan are:
 
   * VPC - Virtual Private Cloud
-  * Networking
-    * Private Subnet
   * Security
     * Default security group - the security group used by default in the VPC
     * NAT security group - the security group used by microservice instances
