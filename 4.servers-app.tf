@@ -396,7 +396,7 @@ resource "aws_instance" "web" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-web /tmp/app/.",
-      "docker run -d --net=host --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
+      "docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
     ]
   }
 
