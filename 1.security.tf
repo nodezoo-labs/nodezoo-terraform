@@ -5,43 +5,21 @@ provider "aws" {
   region      = "${var.region}"
 }
 
-
-# Our default security group to access
-# the instances over SSH and HTTP
-resource "aws_security_group" "default" {
-  name = "instance_sg_default_nodezoo"
-  description = "Used by nodezoo"
-
-  # SSH access from anywhere
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # HTTP access from anywhere
-  ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  # outbound internet access
-  egress {
-    from_port = 0
-    to_port = 0
-    protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+/* Define our vpc */
+resource "aws_vpc" "nodezoo" {
+  cidr_block = "${var.vpc_cidr}"
+  enable_dns_hostnames = true
+  tags {
+    Name = "nodezoo-system"
   }
 }
 
 # Our default security group to access
-# the instances over SSH and HTTP
+# the instances over SSH
 resource "aws_security_group" "nat" {
   name = "instance_sg_nat_nodezoo"
-  description = "Used by nodezoo nat instances"
+  description = "NAT security group for Nodezoo"
+  vpc_id = "${aws_vpc.nodezoo.id}"
 
   # SSH access from anywhere
   ingress {
@@ -51,12 +29,12 @@ resource "aws_security_group" "nat" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Access from anywhere - a hack for now - TODO set-up a VPC
+  # Access all trafic for internal IPs
   ingress {
     from_port = 0
     to_port = 0
     protocol = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["192.168.1.0/24"]
   }
 
   # outbound internet access
@@ -66,16 +44,28 @@ resource "aws_security_group" "nat" {
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags {
+    Name = "NAT security group for Nodezoo"
+  }
 }
 
-/*
-# Our elb security group to access
-# the ELB over HTTP
-resource "aws_security_group" "elb" {
-  name = "elb_sg"
-  description = "Used in the terraform"
+# Our default security group to access
+# the instances over SSH and HTTP
+resource "aws_security_group" "web" {
+  name = "instance_sg_web_nodezoo"
+  description = "WEB security group for Nodezoo"
+  vpc_id = "${aws_vpc.nodezoo.id}"
 
-  # HTTP access from anywhere
+  # SSH access from anywhere
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # SSH access from anywhere
   ingress {
     from_port = 80
     to_port = 80
@@ -83,6 +73,14 @@ resource "aws_security_group" "elb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Access all trafic for internal IPs
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["192.168.1.0/24"]
+  }
+
   # outbound internet access
   egress {
     from_port = 0
@@ -90,5 +88,8 @@ resource "aws_security_group" "elb" {
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags {
+    Name = "WEB security group for Nodezoo"
+  }
 }
-*/

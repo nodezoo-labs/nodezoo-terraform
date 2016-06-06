@@ -1,68 +1,3 @@
-/*
-resource "aws_instance" "web" {
-
-  instance_type = "${var.instance_type}"
-
-  # Lookup the correct AMI based on the region
-  # we specified
-  ami = "${lookup(var.amis, var.region)}"
-
-  key_name = "${aws_key_pair.deployer.key_name}"
-
-  # Our Security group to allow HTTP and SSH access
-  security_groups = ["${aws_security_group.default.name}"]
-
-  user_data = "${file("./scripts/userdata.sh")}"
-  #Instance tags
-  tags {
-    Name = "elb-example"
-  }
-}
-
-
-resource "aws_instance" "github" {
-
-  depends_on = [
-    "aws_instance.elastic",
-    "aws_instance.redis"
-  ]
-
-  instance_type = "t2.micro"
-
-  # Lookup the correct AMI based on the region
-  # we specified
-  ami = "${lookup(var.amis, var.region)}"
-
-  key_name = "${aws_key_pair.deployer.key_name}"
-
-  # Our Security group to allow HTTP and SSH access
-  security_groups = ["${aws_security_group.default.name}"]
-
-  provisioner "file" {
-    source = "services/nodezoo-github/"
-    destination = "/app/"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "curl -sSL https://get.docker.com/ | sudo sh",
-      "sudo usermod -aG docker ubuntu",
-      "docker build -t nodezoo-github /app/.",
-      "docker run  --restart=on-failure:20 nodezoo-github",
-    ]
-  }
-
-  #Instance tags
-  tags {
-    Name = "nodezoo-github"
- }
-}
-*/
-
-/*
-Define NPM app instance
-*/
-
 resource "aws_instance" "npm" {
   instance_type = "${var.instance_type}"
 
@@ -70,12 +5,19 @@ resource "aws_instance" "npm" {
   # we specified
   ami = "${lookup(var.amis, var.region)}"
 
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
   key_name = "${aws_key_pair.deployer.key_name}"
 
   # Our Security group to allow HTTP and SSH access
-  security_groups = [
-    "${aws_security_group.nat.name}"]
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
 
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
 
   # prepare app folder and install required packages
   provisioner "remote-exec" {
@@ -85,38 +27,397 @@ resource "aws_instance" "npm" {
       "curl -sSL https://get.docker.com/ | sudo sh",
       "sudo usermod -aG docker ubuntu"
     ]
-    connection {
-      user = "ubuntu"
-      private_key = "${file("ssh/nodezoo")}"
-    }
   }
 
   # copy project files
   provisioner "file" {
     source = "services/nodezoo-npm/"
     destination = "/tmp/app"
-    connection {
-      user = "ubuntu"
-      private_key = "${file("ssh/nodezoo")}"
-    }
   }
 
   # build and run docker
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-npm /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_dns}' -e NPM_HOST='${aws_instance.npm.private_dns}' -e BASE_HOST='${aws_instance.base.private_dns}:39999' nodezoo-npm",
       # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_dns}' -e NPM_HOST='${aws_instance.npm.private_dns}:39999' -e BASE_HOST='${aws_instance.base.private_dns}:39999' nodezoo-npm > docker_cmd.sh"
+      "echo docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm",
     ]
-    connection {
-      user = "ubuntu"
-      private_key = "${file("ssh/nodezoo")}"
-    }
   }
 
   #Instance tags
   tags {
     Name = "nodezoo-npm"
+  }
+}
+
+resource "aws_instance" "github" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-github/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-github /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-github"
+  }
+}
+
+resource "aws_instance" "travis" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-travis/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-travis /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-travis"
+  }
+}
+
+resource "aws_instance" "updater" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-updater/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-updater /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-updater"
+  }
+}
+
+resource "aws_instance" "dequeue" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-dequeue/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-dequeue /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e DEQUEUE_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-dequeue"
+  }
+}
+
+resource "aws_instance" "info" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-info/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-info /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-info"
+  }
+}
+
+resource "aws_instance" "search" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.nat.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-search/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-search /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-search"
+  }
+}
+
+resource "aws_instance" "web" {
+  instance_type = "${var.small_instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  vpc_security_group_ids = ["${aws_security_group.web.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-web/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-web /tmp/app/.",
+      # next line is just just for debugging purposes
+      "echo docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-web"
   }
 }

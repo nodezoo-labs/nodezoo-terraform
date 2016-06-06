@@ -1,35 +1,37 @@
-/*
-resource "aws_elb" "web" {
-  name = "example-elb"
-
-  # The same availability zone as our instance
-  availability_zones = ["${aws_instance.web.availability_zone}"]
-  security_groups = ["${aws_security_group.elb.id}"]
-  listener {
-    instance_port = 80
-    instance_protocol = "http"
-    lb_port = 80
-    lb_protocol = "http"
-  }
-
-  health_check {
-    healthy_threshold = 2
-    unhealthy_threshold = 2
-    timeout = 3
-    target = "HTTP:80/"
-    interval = 30
-  }  
-
-  # The instance is registered automatically
-  instances = [
-    "${aws_instance.web.id}"
-  ]
-
-  cross_zone_load_balancing = true
-  idle_timeout = 400
-  connection_draining = true
-  connection_draining_timeout = 400
-
+/* Internet gateway for the public subnet */
+resource "aws_internet_gateway" "nodezoo" {
+  vpc_id = "${aws_vpc.nodezoo.id}"
 }
 
-*/
+/* Public subnet */
+resource "aws_subnet" "nodezoo" {
+  vpc_id            = "${aws_vpc.nodezoo.id}"
+  cidr_block        = "${var.public_subnet_cidr}"
+  availability_zone = "us-west-1b"
+  map_public_ip_on_launch = true
+  depends_on = ["aws_internet_gateway.nodezoo"]
+  tags {
+    Name = "public"
+  }
+}
+
+/* Routing table for public subnet */
+resource "aws_route_table" "public" {
+  vpc_id = "${aws_vpc.nodezoo.id}"
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.nodezoo.id}"
+  }
+}
+
+/* Associate the routing table to public subnet */
+resource "aws_route_table_association" "public" {
+  subnet_id = "${aws_subnet.nodezoo.id}"
+  route_table_id = "${aws_route_table.public.id}"
+}
+
+resource "aws_eip" "lb" {
+  instance = "${aws_instance.web.id}"
+  vpc      = true
+}
+

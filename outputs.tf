@@ -1,52 +1,45 @@
-/*output "elb-address" {
-  value = "${aws_elb.web.dns_name}"
-}
-
-output "elastic-address" {
-  value = "${aws_instance.elastic.public_ip}"
-}
-
-output "redis-address" {
+/*Infrastructure instances*/
+output "redis-public-ip" {
   value = "${aws_instance.redis.public_ip}"
-}
-
-output "web-address" {
-  value = "${aws_instance.web.public_ip}"
-}
-
-output "github-address" {
-  value = "${aws_instance.github.public_ip}"
-}
-*/
-
-output "npm-public-ip" {
-  value = "${aws_instance.npm.public_ip}"
-}
-
-output "npm-private-ip" {
-  value = "${aws_instance.npm.private_ip}"
-}
-
-output "npm-public-dns" {
-  value = "${aws_instance.npm.public_dns}"
-}
-
-output "npm-private-dns" {
-  value = "${aws_instance.npm.private_dns}"
 }
 
 output "base-public-ip" {
   value = "${aws_instance.base.public_ip}"
 }
 
-output "base-private-ip" {
-  value = "${aws_instance.base.private_ip}"
+output "es-public-ip" {
+  value = "${aws_instance.elastic.public_ip}"
 }
 
-output "base-private-dns" {
-  value = "${aws_instance.base.private_dns}"
+/*App instances*/
+output "npm-public-ip" {
+  value = "${aws_instance.npm.public_ip}"
 }
 
-output "base-public-dns" {
-  value = "${aws_instance.base.public_dns}"
+output "github-public-ip" {
+  value = "${aws_instance.github.public_ip}"
+}
+
+output "travis-public-ip" {
+  value = "${aws_instance.travis.public_ip}"
+}
+
+output "info-public-ip" {
+  value = "${aws_instance.info.public_ip}"
+}
+
+output "search-public-ip" {
+  value = "${aws_instance.search.public_ip}"
+}
+
+output "updater-public-ip" {
+  value = "${aws_instance.updater.public_ip}"
+}
+
+output "dequeue-public-ip" {
+  value = "${aws_instance.dequeue.public_ip}"
+}
+
+output "web-public-ip" {
+  value = "${aws_instance.web.public_ip}"
 }
