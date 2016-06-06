@@ -59,6 +59,14 @@ In the ```keypairs.tf``` file this key is set, so it can be used into the Terraf
 
 # The project
 
+### Get NodeZoo repositories
+
+Run:
+
+```sh
+make setup
+```
+
 The project contains various files and their role is explained bellow:
 
 The structure of the file is:
