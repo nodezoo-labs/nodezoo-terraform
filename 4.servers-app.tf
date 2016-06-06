@@ -93,8 +93,8 @@ resource "aws_instance" "github" {
     inline = [
       "docker build -t nodezoo-github /tmp/app/.",
       # next line is just just for debugging purposes
-      "echo docker run -d --restart=on-failure:20 -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github > docker_cmd.sh",
-      "docker run -d --restart=on-failure:20 -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
+      "echo docker run -d --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github > docker_cmd.sh",
+      "docker run -d --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
     ]
   }
 

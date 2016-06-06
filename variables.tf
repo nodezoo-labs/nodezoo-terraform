@@ -44,6 +44,10 @@ variable "public_subnet_cidr" {
 Private Ips for infrastructure instances
 */
 
+variable "github_token" {
+  description = "Github token"
+}
+
 variable "base_private_ip" {
   description = "Private IP for Mesh Base instance"
   default = "192.168.1.10"
