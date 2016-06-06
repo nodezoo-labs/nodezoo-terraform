@@ -39,7 +39,7 @@ resource "aws_instance" "npm" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-npm /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm",
+      "docker run -d --net=host --restart=on-failure:20 -e NPM_REDIS_HOST='${aws_instance.redis.private_ip}' -e NPM_HOST='${aws_instance.npm.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-npm",
     ]
   }
 
@@ -90,7 +90,7 @@ resource "aws_instance" "github" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-github /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
+      "docker run -d --net=host --restart=on-failure:20 -e GITHUB_TOKEN='${github_token}' -e GITHUB_REDIS_HOST='${aws_instance.redis.private_ip}' -e GITHUB_HOST='${aws_instance.github.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-github",
     ]
   }
 
@@ -141,7 +141,7 @@ resource "aws_instance" "travis" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-travis /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis",
+      "docker run -d --net=host --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e TRAVIS_HOST='${aws_instance.travis.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-travis",
     ]
   }
 
@@ -192,7 +192,7 @@ resource "aws_instance" "updater" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-updater /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater",
+      "docker run -d --net=host --restart=on-failure:20 -e UPDATER_REDIS_HOST='${aws_instance.redis.private_ip}' -e UPDATER_HOST='${aws_instance.updater.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-updater",
     ]
   }
 
@@ -243,7 +243,7 @@ resource "aws_instance" "dequeue" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-dequeue /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue",
+      "docker run -d --net=host --restart=on-failure:20 -e TRAVIS_REDIS_HOST='${aws_instance.redis.private_ip}' -e DEQUEUE_HOST='${aws_instance.dequeue.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-dequeue",
     ]
   }
 
@@ -294,7 +294,7 @@ resource "aws_instance" "info" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-info /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info",
+      "docker run -d --net=host --restart=on-failure:20 -e INFO_HOST='${aws_instance.info.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-info",
     ]
   }
 
@@ -345,7 +345,7 @@ resource "aws_instance" "search" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-search /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
+      "docker run -d --net=host --restart=on-failure:20 -e SEARCH_ELASTIC_HOST='${aws_instance.elastic.private_ip}' -e SEARCH_HOST='${aws_instance.search.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-search",
     ]
   }
 
@@ -396,7 +396,7 @@ resource "aws_instance" "web" {
   provisioner "remote-exec" {
     inline = [
       "docker build -t nodezoo-web /tmp/app/.",
-      "docker run -d --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
+      "docker run -d --net=host --restart=on-failure:20 -p 80:8000 -e WEB_HOST='${aws_instance.web.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-web",
     ]
   }
 
