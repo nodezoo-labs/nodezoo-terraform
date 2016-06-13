@@ -100,6 +100,58 @@ resource "aws_instance" "github" {
   }
 }
 
+resource "aws_instance" "coveralls" {
+  instance_type = "${var.instance_type}"
+
+  # Lookup the correct AMI based on the region
+  # we specified
+  ami = "${lookup(var.amis, var.region)}"
+
+  # subnet for this instance - only private subnet
+  subnet_id = "${aws_subnet.nodezoo.id}"
+
+  key_name = "${aws_key_pair.deployer.key_name}"
+
+  # Our Security group to allow HTTP and SSH access
+  # HINT: Because we are using also subnet_id the id of security group should be used instead of name
+  security_groups = ["${aws_security_group.private.id}"]
+
+  connection {
+    user = "ubuntu"
+    private_key = "${file("ssh/nodezoo")}"
+  }
+
+  # prepare app folder and install required packages
+  provisioner "remote-exec" {
+    inline = [
+      "mkdir /tmp/app",
+      "sudo apt-get update -y",
+      "curl -sSL https://get.docker.com/ | sudo sh",
+      "sudo usermod -aG docker ubuntu"
+    ]
+  }
+
+  # copy project files
+  provisioner "file" {
+    source = "services/nodezoo-coveralls/"
+    destination = "/tmp/app"
+  }
+
+  # build and run docker
+  provisioner "remote-exec" {
+    inline = [
+      "docker build -t nodezoo-coveralls /tmp/app/.",
+      "docker run -d --net=host --restart=on-failure:20 -e COVERALLS_REDIS_HOST='${aws_instance.redis.private_ip}' -e COVERALLS_HOST='${aws_instance.coveralls.private_ip}' -e BASE_HOST='${aws_instance.base.private_ip}:39999' nodezoo-coveralls",
+    ]
+  }
+
+  #Instance tags
+  tags {
+    Name = "nodezoo-coveralls"
+  }
+}
+
+
 resource "aws_instance" "travis" {
   instance_type = "${var.instance_type}"
 

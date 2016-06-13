@@ -145,6 +145,7 @@ The main instances created by this plan are:
     * WEB app
     * NPM microservice 
     * GitHub microservice
+    * Coveralls microservice
     * Travis microservice
     * Updater microservice
     * Dequeue microservice

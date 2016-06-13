@@ -1,7 +1,8 @@
 
 PACKAGES=nodezoo-base nodezoo-github nodezoo-info \
 				 nodezoo-npm nodezoo-search nodezoo-travis \
-				 nodezoo-web nodezoo-updater nodezoo-dequeue
+				 nodezoo-web nodezoo-updater nodezoo-dequeue \
+				 nodezoo-coveralls
 
 SERVICES=$(foreach service, $(PACKAGES), services/$(service))
 

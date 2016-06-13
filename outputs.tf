@@ -24,6 +24,10 @@ output "travis-public-ip" {
   value = "${aws_instance.travis.public_ip}"
 }
 
+output "coveralls-public-ip" {
+  value = "${aws_instance.coveralls.public_ip}"
+}
+
 output "info-public-ip" {
   value = "${aws_instance.info.public_ip}"
 }
